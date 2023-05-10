@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codecorn.OrderService.entity.Order;
+import com.codecorn.OrderService.external.client.ProductService;
 import com.codecorn.OrderService.model.OrderRequest;
 import com.codecorn.OrderService.repository.OrderRepository;
 
@@ -18,6 +19,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProductService productService;
+
     @Override
     public long placeOrder(OrderRequest orderRequest) {
         // Order Entity -> save the data with Status Order Created
@@ -27,6 +31,9 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Placing Order Request: {}", orderRequest);
 
+        productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+
+        log.info("Creating Order with Status CREATED");
         Order order = Order.builder()
                 .productId(orderRequest.getProductId())
                 .quantity(orderRequest.getQuantity())
